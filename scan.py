@@ -9,16 +9,14 @@ MAX_FREQ = 868.403  # MHz
 SAMPLE_TIME = timedelta(minutes=15)
 FILE_SAMPLES = "samples.csv"
 
-MOCK = True
 
 SPECTRUM = range(int(MIN_FREQ*1e6),
                  int(MAX_FREQ*1e6),
                  int(1e3))
 
 
-def listen(callback, freq, timeout):
-    import ec3k
-    my_ec3k = ec3k.EnergyCount3K(callback=callback, freq=freq)
+def ec3k_listen(callback, freq, timeout):
+    my_ec3kk = ec3k.EnergyCount3K(callback=callback, freq=freq)
     my_ec3k.start()
     sleep(timeout)
     my_ec3k.stop()
@@ -41,7 +39,12 @@ def mock_listen(callback, freq, timeout):
             callback(state)
 
 
-if MOCK:
+try:
+    import ec3k
+    print("ec3k successfully found")
+    listen = ec3k_listen
+except:
+    print("ec3k not found, faking it")
     listen = mock_listen
 
 
