@@ -2,7 +2,7 @@
 
 from pandas import read_csv, MultiIndex
 
-from scan import FILE_SAMPLES, SPECTRUM
+from scan import FILE_SAMPLES, SPECTRUM, mhz
 
 
 def analyze():
@@ -12,27 +12,32 @@ def analyze():
     print("got %d samples for %d devices" % (len(samples), len(devices)))
 
     samples = samples.groupby(["frequency", "id"]).size()
-    index = [SPECTRUM, samples.index.get_level_values("id").unique()]
-    ids = samples.index.get_level_values("id").unique()
-    samples = samples.reindex(MultiIndex.from_product([SPECTRUM, ids],
+    samples = samples.reindex(MultiIndex.from_product([SPECTRUM, devices],
                                                       names=samples.index.names))
     samples = samples.unstack("id")
-    samples = samples.reset_index("frequency")
 
+    # let's only keep frequencies with all signals present
+    candidates = samples.dropna().copy()
+    # total number of signals for each frequency
+    total = candidates.sum(axis=1)
+    # strength of the weakest signal
+    weakest = candidates.min(axis=1)
+    candidates["total"] = total
+    candidates["weakest"] = weakest
+    appropriate_freq = candidates.sort_values(by=["weakest", "total"],
+                                              ascending=False).index[0]
+    print("suggesting frequency %s" % mhz(appropriate_freq))
+        
     import matplotlib.pyplot as plt
+
     plt.style.use("ggplot")
-    p=samples.plot(x="frequency",
+    p=samples.plot(
                    kind="barh",
                    stacked=True)
     from matplotlib.ticker import MaxNLocator
-    p.set_yticklabels([SPECTRUM[f] / 1e6 for f in samples.index.tolist()])
+    p.set_yticklabels([f / 1e6 for f in SPECTRUM])
     p.yaxis.set_major_locator(MaxNLocator(10)) 
     plt.savefig("spectrum.png", dpi=600)
-        
-    # select frequency with most signals for sensor with weakest signal
-    # and then maximum number of total signals
-    appropriate_freq = 0
-    print("suggesting frequency %d" % appropriate_freq)
 
 
 if __name__ == '__main__':

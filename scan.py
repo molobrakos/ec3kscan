@@ -48,10 +48,12 @@ except:
     listen = mock_listen
 
 
+def mhz(f):
+    return "%3.3f MHz" % (f / 1e6)
+
+
 def receive(freq, timeout):
-    def mhz():
-        return "%3.3f MHz" % (freq / 1e6)
-    print("receving at %s" % mhz())
+    print("receving at %s" % mhz(freq))
     samples = []
 
     def callback(state):
