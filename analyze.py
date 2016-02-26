@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from pandas import read_csv, MultiIndex
+from pandas import read_csv, MultiIndex, DataFrame
 
 from scan import FILE_SAMPLES, SPECTRUM, mhz
 
@@ -17,22 +17,16 @@ def analyze():
     samples = samples.unstack("id")
 
     # let's only keep frequencies with all signals present
-    candidates = samples.dropna().copy()
-    # total number of signals for each frequency
-    total = candidates.sum(axis=1)
-    # strength of the weakest signal
-    weakest = candidates.min(axis=1)
-    candidates["total"] = total
-    candidates["weakest"] = weakest
+    candidates = samples.dropna()
+    candidates = DataFrame({"total":   candidates.sum(axis=1),
+                            "weakest": candidates.min(axis=1)})
     appropriate_freq = candidates.sort_values(by=["weakest", "total"],
                                               ascending=False).index[0]
     print("suggesting frequency %s" % mhz(appropriate_freq))
         
     import matplotlib.pyplot as plt
-
     plt.style.use("ggplot")
-    p=samples.plot(
-                   kind="barh",
+    p=samples.plot(kind="barh",
                    stacked=True)
     from matplotlib.ticker import MaxNLocator
     p.set_yticklabels([f / 1e6 for f in SPECTRUM])
