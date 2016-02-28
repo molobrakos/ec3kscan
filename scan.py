@@ -5,7 +5,7 @@ from time import sleep
 from random import randint
 
 MIN_FREQ = 868.200  # MHz
-MAX_FREQ = 868.403  # MHz
+MAX_FREQ = 868.410  # MHz
 SAMPLE_TIME = timedelta(minutes=15)
 FILE_SAMPLES = "samples.csv"
 
@@ -67,6 +67,7 @@ def receive(freq, timeout):
                             power_max=state.power_max,
                             reset_counter=state.reset_counter))
     listen(callback, freq, timeout)
+    print("got %d samples at %s" % (len(samples), mhz(freq)))
     return samples
 
 
