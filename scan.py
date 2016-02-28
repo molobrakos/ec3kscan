@@ -18,7 +18,7 @@ SPECTRUM = range(int(MIN_FREQ*1e6),
 def ec3k_listen(callback, freq, timeout):
     my_ec3k = ec3k.EnergyCount3K(callback=callback, freq=freq)
     my_ec3k.start()
-    sleep(timeout)
+    sleep(timeout.seconds)
     my_ec3k.stop()
 
 
@@ -67,7 +67,7 @@ def receive(freq, timeout):
                             power_max=state.power_max,
                             reset_counter=state.reset_counter))
     listen(callback, freq, timeout)
-    print("got %d samples at %s" % (len(samples), mhz(freq)))
+    print("got %d samples at %s during %s" % (len(samples), mhz(freq), timeout))
     return samples
 
 
@@ -77,7 +77,7 @@ def scan():
     samples = [sample
                for freq in SPECTRUM
                for sample in
-               receive(freq, SAMPLE_TIME.seconds)]
+               receive(freq, SAMPLE_TIME)]
     from pandas import DataFrame
     samples = DataFrame(samples)
     samples.to_csv(FILE_SAMPLES, index=None)
