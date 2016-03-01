@@ -1,13 +1,13 @@
 #!/usr/bin/python
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from time import sleep
 from random import randint
 
 MIN_FREQ = 868.200  # MHz
 MAX_FREQ = 868.410  # MHz
 SAMPLE_TIME = timedelta(minutes=15)
-FILE_SAMPLES = "samples.csv"
+FILE_SIGNALS = "signals.csv"
 
 
 SPECTRUM = range(int(MIN_FREQ*1e6),
@@ -54,10 +54,10 @@ def mhz(f):
 
 def receive(freq, timeout):
     print("receving at %s" % mhz(freq))
-    samples = []
+    signals = []
 
     def callback(state):
-        samples.append(dict(frequency=freq,
+        signals.append(dict(frequency=freq,
                             id="%04x" % state.id,
                             device_on_flag=state.device_on_flag,
                             time_total=state.time_total,
@@ -67,21 +67,23 @@ def receive(freq, timeout):
                             power_max=state.power_max,
                             reset_counter=state.reset_counter))
     listen(callback, freq, timeout)
-    print("got %d samples at %s during %s" % (len(samples), mhz(freq), timeout))
-    return samples
+    print("got %d signals at %s during %s" % (len(signals), mhz(freq), timeout))
+    return signals
 
 
 def scan():
     time_estimate = SAMPLE_TIME * len(SPECTRUM)
+    finish_time = datetime.now().replace(microsecond=0) + time_estimate
     print("warning: this will take approx %s" % time_estimate)
-    samples = [sample
+    print("estimated finish time at %s" % finish_time)
+    signals = [signal
                for freq in SPECTRUM
-               for sample in
+               for signal in
                receive(freq, SAMPLE_TIME)]
     from pandas import DataFrame
-    samples = DataFrame(samples)
-    samples.to_csv(FILE_SAMPLES, index=None)
-    print("done, wrote %d samples to %s" % (len(samples), FILE_SAMPLES))
+    signals = DataFrame(signals)
+    signals.to_csv(FILE_SIGNALS, index=None)
+    print("done, wrote %d signals to %s" % (len(signals), FILE_SIGNALS))
 
 
 if __name__ == '__main__':
