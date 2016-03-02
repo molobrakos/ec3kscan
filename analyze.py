@@ -29,7 +29,7 @@ def analyze():
                                               ascending=False).index[0]
     print("suggesting frequency %s" % mhz(appropriate_freq))
 
-    # signals.to_csv("spectrum.csv")
+    signals.to_csv("spectrum.csv")
     
     import matplotlib.pyplot as plt
     from matplotlib.ticker import EngFormatter
