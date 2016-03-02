@@ -35,7 +35,6 @@ def analyze():
     from matplotlib.ticker import EngFormatter
 
     plt.style.use("ggplot")
-    plt.locator_params(nbins=4)
     p=signals.plot()
     p.xaxis.set_major_formatter(EngFormatter(unit='Hz', places=2))
     plt.savefig(FILE_SPECTRUM, dpi=300)
