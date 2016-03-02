@@ -4,8 +4,8 @@ from datetime import timedelta, datetime
 from time import sleep
 from random import randint
 
-MIN_FREQ = 868.200  # MHz
-MAX_FREQ = 868.410  # MHz
+MIN_FREQ = 868.18  # MHz
+MAX_FREQ = 868.32  # MHz
 SAMPLE_TIME = timedelta(minutes=15)
 FILE_SIGNALS = "signals.csv"
 
@@ -59,7 +59,7 @@ def receive(freq, timeout):
     def callback(state):
         signals.append(dict(frequency=freq,
                             id="%04x" % state.id,
-                            device_on_flag=state.device_on_flag,
+                            device_on_flag=[0,1][state.device_on_flag],
                             time_total=state.time_total,
                             time_on=state.time_on,
                             energy=state.energy,
