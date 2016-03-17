@@ -4,6 +4,14 @@ from datetime import timedelta, datetime
 from time import sleep
 from random import randint
 
+try:
+    import ec3k
+    print("ec3k successfully found")
+except:
+    print("ec3k not found, exiting")
+    exit(-1)
+
+
 MIN_FREQ = 868.18  # MHz
 MAX_FREQ = 868.32  # MHz
 SAMPLE_TIME = timedelta(minutes=15)
@@ -20,32 +28,6 @@ def ec3k_listen(callback, freq, timeout):
     my_ec3k.start()
     sleep(timeout.seconds)
     my_ec3k.stop()
-
-
-def mock_listen(callback, freq, timeout):
-    import random
-    ids = [31, 37, 39, 47]
-    if randint(0, 10) == 0:
-        for i in range(randint(1, 10)):
-            class state(object):
-                id = random.choice(ids)
-                device_on_flag = 1
-                time_total = 0
-                time_on = 0
-                energy = 0
-                power_current = 0
-                power_max = 0
-                reset_counter = 0
-            callback(state)
-
-
-try:
-    import ec3k
-    print("ec3k successfully found")
-    listen = ec3k_listen
-except:
-    print("ec3k not found, faking it")
-    listen = mock_listen
 
 
 def mhz(f):
@@ -66,7 +48,7 @@ def receive(freq, timeout):
                             power_current=state.power_current,
                             power_max=state.power_max,
                             reset_counter=state.reset_counter))
-    listen(callback, freq, timeout)
+    ec3k_listen(callback, freq, timeout)
     print("got %d signals at %s during %s" % (len(signals), mhz(freq), timeout))
     return signals
 
