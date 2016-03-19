@@ -25,8 +25,8 @@ def analyze():
     # received signals for all sensors
     candidates = DataFrame({"total":   candidates.sum(axis=1),
                             "weakest": candidates.min(axis=1)})
-    appropriate_freq = candidates.sort_values(by=["weakest", "total"],
-                                              ascending=False).index[0]
+    appropriate_freq = candidates.sort(["weakest", "total"],
+                                       ascending=False).index[0]
     print("suggesting frequency %s" % mhz(appropriate_freq))
 
     signals.to_csv("spectrum.csv")
@@ -34,7 +34,6 @@ def analyze():
     import matplotlib.pyplot as plt
     from matplotlib.ticker import EngFormatter
 
-    plt.style.use("ggplot")
     p=signals.plot()
     p.xaxis.set_major_formatter(EngFormatter(unit='Hz', places=2))
     plt.savefig(FILE_SPECTRUM, dpi=300)
