@@ -34,7 +34,7 @@ def analyze():
     import matplotlib.pyplot as plt
     from matplotlib.ticker import EngFormatter
 
-    p=signals.plot()
+    p=signals.plot(kind="Area")
     p.xaxis.set_major_formatter(EngFormatter(unit='Hz', places=2))
     plt.savefig(FILE_SPECTRUM, dpi=300)
     print("saved spectrum as %s" % FILE_SPECTRUM)
