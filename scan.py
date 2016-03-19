@@ -4,17 +4,10 @@ from datetime import timedelta, datetime
 from time import sleep
 from random import randint
 
-try:
-    import ec3k
-    print("ec3k successfully found")
-except:
-    print("ec3k not found, exiting")
-    exit(-1)
-
 
 MIN_FREQ = 868.18  # MHz
-MAX_FREQ = 868.32  # MHz
-SAMPLE_TIME = timedelta(minutes=15)
+MAX_FREQ = 868.40  # MHz
+SAMPLE_TIME = timedelta(minutes=5)
 FILE_SIGNALS = "signals.csv"
 
 
@@ -24,6 +17,12 @@ SPECTRUM = range(int(MIN_FREQ*1e6),
 
 
 def ec3k_listen(callback, freq, timeout):
+    try:
+        import ec3k
+        print("ec3k successfully found")
+    except:
+        print("ec3k not found")
+        return
     my_ec3k = ec3k.EnergyCount3K(callback=callback, freq=freq)
     my_ec3k.start()
     sleep(timeout.seconds)
@@ -39,8 +38,10 @@ def receive(freq, timeout):
     signals = []
 
     def callback(state):
+        state.id = "%04x" % state.id
+        # print("signal from %s" % state.id)
         signals.append(dict(frequency=freq,
-                            id="%04x" % state.id,
+                            id=state.id,
                             device_on_flag=[0,1][state.device_on_flag],
                             time_total=state.time_total,
                             time_on=state.time_on,
@@ -49,7 +50,9 @@ def receive(freq, timeout):
                             power_max=state.power_max,
                             reset_counter=state.reset_counter))
     ec3k_listen(callback, freq, timeout)
-    print("got %d signals at %s during %s" % (len(signals), mhz(freq), timeout))
+    devices = set([signal["id"] for signal in signals])
+    print("got %d signals from %d devices at %s during %s" %
+          (len(signals), len(devices), mhz(freq), timeout))
     return signals
 
 
