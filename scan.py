@@ -5,9 +5,9 @@ from time import sleep
 from random import randint
 
 
-MIN_FREQ = 868.18  # MHz
+MIN_FREQ = 868.10  # MHz
 MAX_FREQ = 868.40  # MHz
-SAMPLE_TIME = timedelta(minutes=5)
+SAMPLE_TIME = timedelta(minutes=10)
 FILE_SIGNALS = "signals.csv"
 
 
