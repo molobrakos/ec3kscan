@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from datetime import timedelta, datetime
 from time import sleep
@@ -20,7 +20,7 @@ def ec3k_listen(callback, freq, timeout):
     try:
         import ec3k
         print("ec3k successfully found")
-    except:
+    except ImportError:
         print("ec3k not found")
         return
     my_ec3k = ec3k.EnergyCount3K(callback=callback, freq=freq)
