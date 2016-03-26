@@ -17,12 +17,6 @@ SPECTRUM = range(int(MIN_FREQ*1e6),
 
 
 def ec3k_listen(callback, freq, timeout):
-    try:
-        import ec3k
-        print("ec3k successfully found")
-    except ImportError:
-        print("ec3k not found")
-        return
     my_ec3k = ec3k.EnergyCount3K(callback=callback, freq=freq)
     my_ec3k.start()
     sleep(timeout.seconds)
@@ -57,6 +51,12 @@ def receive(freq, timeout):
 
 
 def scan():
+    try:
+        import ec3k
+        print("ec3k successfully found")
+    except ImportError as e:
+        print("ec3k not found: ", e)
+        return
     time_estimate = SAMPLE_TIME * len(SPECTRUM)
     finish_time = datetime.now().replace(microsecond=0) + time_estimate
     print("warning: this will take approx %s" % time_estimate)
