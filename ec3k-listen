@@ -1,0 +1,65 @@
+#!/usr/bin/env python2
+
+"""
+Usage: server.py
+
+Options:
+
+Example:
+
+  ./ec3k-listen | grep is_on | tee -a ec3k.json | ./ha-feeder
+
+"""
+
+from sys import version_info, stdout, stderr
+
+if version_info > (3, 0):
+    print("python 3 not supported by gnu radio")
+
+from docopt import docopt
+from time import sleep
+from datetime import datetime, timedelta
+from SocketServer import ThreadingTCPServer, StreamRequestHandler
+from json import dumps as to_json
+import logging
+import ec3k
+
+FREQUENCY=868.200 * 1e6
+
+_LOGGER = logging.getLogger(__name__)
+DATEFMT="%y-%m-%d %H:%M.%S"
+
+def callback(state):
+    state.id = "%04x" % state.id
+    print(to_json(dict(id=state.id,
+                       time=datetime.utcnow().replace(microsecond=0).isoformat(),
+                       is_on=state.device_on_flag,
+                       energy=state.energy,
+                       power=state.power_current,
+                       power_max=state.power_max,
+                       time_on=state.time_on,
+                       time_total=state.time_total)))
+    stdout.flush()
+        
+if __name__ == '__main__':
+    opts = docopt(__doc__, version=0.1)
+    logging.basicConfig(level=logging.INFO,
+                        stream=stderr,
+                        datefmt=DATEFMT,
+                        format="%(asctime)s %(levelname)5s (%(threadName)s) [%(name)s]  %(message)s")
+    
+    receiver = ec3k.EnergyCount3K(callback=callback,
+                                  freq=FREQUENCY)
+    receiver._log = _LOGGER.debug
+    receiver.start()
+
+    try:
+        while True:
+            sleep(60)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        try:
+            receiver.stop()
+        except KeyboardInterrupt:
+            pass
