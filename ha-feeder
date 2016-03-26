@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+
+"""
+Usage: ha-feeder
+
+Options:
+
+Example:
+
+  nice ./ec3k-listen | grep is_on | tee >(./ha-feeder) | gzip > ec3k.json.gz
+
+"""
+
+from sys import stdin, stdout, stderr
+from docopt import docopt
+from datetime import timedelta
+from json import dumps as to_json, loads as from_json
+from urlparse import urljoin
+import logging
+import requests
+
+_LOGGER = logging.getLogger(__name__)
+DATEFMT="%y-%m-%d %H:%M.%S"
+
+API_URL="http://localhost:8123/api/"
+
+if __name__ == '__main__':
+    opts = docopt(__doc__, version=0.1)
+    logging.basicConfig(level=logging.WARNING,
+                        stream=stderr,
+                        datefmt=DATEFMT,
+                        format="%(asctime)s %(levelname)5s (%(threadName)s) [%(name)s]  %(message)s")
+
+    browser = requests.Session()
+
+    while True:
+        line = stdin.readline()
+        if not line:
+            break
+        try:
+            json = from_json(line)
+        except ValueError:
+            continue
+        json["unit_of_measurement"] = "W"
+        json["icon"] = "mdi:speedometer"
+        json["hidden"] = True
+        sensor_id = json["id"]
+        data = to_json(dict(state=json["power"],
+                            attributes=json))
+        entity = "sensor.ec3k_%s" % sensor_id
+        url = "%s%s/%s" % (API_URL, "states", entity)
+        _LOGGER.debug("posting to url %s", url)
+        headers = {"content-type": "application/json"}
+        try:
+            response = browser.post(url, headers=headers, data=data)
+            # print(response.status_code)
+        except:
+            continue
