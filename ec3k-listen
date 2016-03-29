@@ -39,7 +39,11 @@ def callback(state):
                        power_max=state.power_max,
                        time_on=state.time_on,
                        time_total=state.time_total)))
-    stdout.flush()
+    try:
+        stdout.flush()
+    except IOError:
+        # broken pipe
+        pass
         
 if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
