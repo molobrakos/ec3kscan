@@ -27,7 +27,7 @@ FREQUENCY=868.200 * 1e6
 
 LOGFMT="%(asctime)s %(levelname)5s (%(threadName)s) [%(name)s]  %(message)s"
 DATEFMT = "%y-%m-%d %H:%M.%S"
-LOG_LEVEL = logging.DEBUG
+LOG_LEVEL = logging.INFO
 _LOGGER = logging.getLogger(__name__)
 
 try:
