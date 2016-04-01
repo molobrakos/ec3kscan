@@ -14,7 +14,7 @@ Example:
 from sys import version_info, stdout, stderr
 
 if version_info > (3, 0):
-    print("python 3 not supported by gnu radio")
+    print("Python 3 not supported by GNU Radio :-(")
 
 from time import sleep
 from datetime import datetime, timedelta
@@ -62,18 +62,23 @@ def scan():
     receiver = ec3k.EnergyCount3K(callback=callback,
                                   freq=FREQUENCY)
     receiver._log = _LOGGER.debug
+    _LOGGER.info("Starting ec3k")
     receiver.start()
     try:
-        while True:
-            # ec3k seems to die and stop sending
-            # callbacks after a while, lets's restart
-            # once every 24 hours
-            sleep(24*60*60)
+        # ec3k seems to die and stop sending
+        # callbacks after a while, lets's restart
+        # once every 12 hours
+        DELAY = timedelta(hours=12)
+        _LOGGER.info("Waiting %s", DELAY)
+        sleep(DELAY.seconds)
+        _LOGGER.info("Waking up")
         return True
     except KeyboardInterrupt:
+        _LOGGER.info("Interrupted")
         return False
     finally:
         try:
+            _LOGGER.info("Stopping ec3k")
             receiver.stop()
         except KeyboardInterrupt:
             return False
@@ -81,4 +86,7 @@ def scan():
 
 if __name__ == '__main__':    
     while scan():
+        _LOGGER.info("Restarting")
         pass
+
+    
