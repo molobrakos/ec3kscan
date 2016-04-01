@@ -40,19 +40,19 @@ logging.basicConfig(level=LOG_LEVEL,
 if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
 
-    _LOGGER.debug("starting session")
+    _LOGGER.debug("Starting session")
     browser = requests.Session()
 
     while True:
-        _LOGGER.debug("reading from stdin")
+        _LOGGER.debug("Reading from stdin")
         line = stdin.readline()
         if not line:
-            _LOGGER.debug("stdin closed, exiting")
+            _LOGGER.debug("Stdin closed, exiting")
             break
         try:
             json = from_json(line)
         except ValueError:
-            _LOGGER.debug("invalid json")
+            _LOGGER.debug("Invalid json")
             continue
         json["unit_of_measurement"] = "W"
         json["icon"] = "mdi:speedometer"
@@ -62,10 +62,10 @@ if __name__ == '__main__':
                             attributes=json))
         entity = "sensor.ec3k_%s" % sensor_id
         url = "%s%s/%s" % (API_URL, "states", entity)
-        _LOGGER.debug("posting to url %s", url)
-        headers = {"content-type": "application/json"}
+        _LOGGER.debug("Posting to url %s", url)
+        headers = {"Content-Type": "application/json"}
         try:
             response = browser.post(url, headers=headers, data=data)
             response.raise_for_status()
         except:
-            _LOGGER.exception("failed to post to url %s", url)
+            _LOGGER.exception("Failed to post to url %s", url)
