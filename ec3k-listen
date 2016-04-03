@@ -67,8 +67,8 @@ def scan():
     try:
         # ec3k seems to die and stop sending
         # callbacks after a while, lets's restart
-        # once every 12 hours
-        DELAY = timedelta(hours=12)
+        # once every 6 hours
+        DELAY = timedelta(hours=6)
         _LOGGER.info("Waiting %s", DELAY)
         sleep(DELAY.seconds)
         _LOGGER.info("Waking up")
