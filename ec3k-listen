@@ -18,7 +18,6 @@ if version_info > (3, 0):
 
 from time import sleep
 from datetime import datetime, timedelta
-from SocketServer import ThreadingTCPServer, StreamRequestHandler
 from json import dumps as to_json
 import logging
 import ec3k
